@@ -6,7 +6,7 @@ exports.up = function(knex) {
     // t.timestamp('created_at');
     // t.timestamp('updated_at');
     t.integer('todo_id').unsigned().index();
-    t.timestamps(false, true);
+    t.timestamps(true, true);
     // t.timestamp('deleted_at');
   })
 };

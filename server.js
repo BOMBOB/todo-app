@@ -1,20 +1,47 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 
-const { TodoModel } = require('./models')
+const { TodoModel, SubTaskModel } = require('./models')
 
 const app = express();
 
 app.use(bodyParser.json())
-
+app.post('/:id/subtask', async (req,res) => {
+  const { id } = req.params;
+  const { name= 'new subtask of '+ id } = req.body;
+  if (!id || !name ) {
+    return;
+  }
+  const todo = await new TodoModel({ id }).fetch();
+  if (!todo){
+    return;
+  }
+  const subtask = await new SubTaskModel({ todo_id: todo.get('id'), name }).save(null, { method: 'insert' });
+  res.json({
+    success: true, 
+    code: 200,
+    message: 'Success',
+    data: subtask.toJSON(),
+  })
+})
 app.get('/', (req, res) => {
   res.send('Get Method')
 })
 app.get('/:id', async (req,res) => {
-  req.query.
   const { id } = req.params;
   const todo = new TodoModel({ id });
   await todo.fetch();
+  res.status(200).json({
+    success: true,
+    message: 'Success',
+    code: 200,
+    data: todo.toJSON(),
+  })
+})
+app.get('/:id/subtask', async (req,res) => {
+  const { id } = req.params;
+  const todo = new TodoModel({ id });
+  await todo.fetch({withRelated: ['subTask']});
   res.status(200).json({
     success: true,
     message: 'Success',
@@ -76,12 +103,12 @@ app.listen(PORT, () => {
   console.log('Listen: ', PORT);
 })
 
-get /todos?page=1
-post /todos
-get put /todos/:id
-delete /todos/:id
+// get /todos?page=1
+// post /todos
+// get put /todos/:id
+// delete /todos/:id
   
-get /todos/:id/sub_tasks
-post /todos/:id/sub_tasks
-get, put, delete /todos/:id/sub_tasks/:subTaskId
+// get /todos/:id/sub_tasks
+// post /todos/:id/sub_tasks
+// get, put, delete /todos/:id/sub_tasks/:subTaskId
 
