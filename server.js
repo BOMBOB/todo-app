@@ -6,17 +6,23 @@ const { TodoModel, SubTaskModel } = require('./models')
 const app = express();
 
 app.use(bodyParser.json())
-app.post('/:id/subtask', async (req,res) => {
+app.post('/todos/:id/subtasks', async (req,res) => {
   const { id } = req.params;
-  const { name= 'new subtask of '+ id } = req.body;
+  const { name } = req.body;
   if (!id || !name ) {
+    res.status(404).json({
+
+    })
     return;
   }
   const todo = await new TodoModel({ id }).fetch();
   if (!todo){
     return;
   }
+  console.log('>>todo')
+
   const subtask = await new SubTaskModel({ todo_id: todo.get('id'), name }).save(null, { method: 'insert' });
+ 
   res.json({
     success: true, 
     code: 200,
@@ -38,13 +44,20 @@ app.get('/:id', async (req,res) => {
     data: todo.toJSON(),
   })
 })
-app.get('/:id/subtask', async (req,res) => {
+app.get('/subtasks/:id', async(req, res) => {
+  const subtask = await new SubTaskModel.fetch({ withRelated: ['todo']})
+  res.json({
+    data: subtask.toJSON(),
+  })
+})
+app.get('/todos/:id/subtasks', async (req,res) => {
   const { id } = req.params;
-  const todo = new TodoModel({ id });
-  await todo.fetch({withRelated: ['subTask']});
+  const todo = await new TodoModel({ id }).fetch({ withRelated: ['subtasks']})
+  console.log('>>todo: ', todo)
+  console.log('>>todo.toJSON(): ', todo.toJSON());
   res.status(200).json({
     success: true,
-    message: 'Success',
+    message: 'Success', 
     code: 200,
     data: todo.toJSON(),
   })

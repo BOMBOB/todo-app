@@ -1,11 +1,10 @@
 const bookshelf = require('../db')
-const SubtaskModel = require("./SubtaskModel");
-
+const SubTaskModel = require('./SubtaskModel');
 const TodoModel = bookshelf.Model.extend({
   tableName: 'todos',
   hasTimestamps: true,
-  subTask() {
-    return this.hasMany(SubtaskModel);
+  subtasks() {
+    return this.hasMany(SubTaskModel)
   }
 })
 
